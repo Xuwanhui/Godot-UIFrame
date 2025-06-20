@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://br1uvdupbbe2c"]
+
+[ext_resource type="Texture2D" uid="uid://o7cjb1q4mu7q" path="res://icon.svg" id="1_a3xrh"]
+[ext_resource type="Script" uid="uid://c8pexjxfkju6e" path="res://Script/Runtime/TestPanel.cs" id="2_aegu7"]
+
+[node name="TestPanel" type="TextureRect" node_paths=PackedStringArray("_button")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_a3xrh")
+script = ExtResource("2_aegu7")
+_button = NodePath("Button")
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -68.0
+offset_top = -68.0
+offset_right = 68.0
+offset_bottom = 68.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 46
+text = "关闭"
+icon = ExtResource("1_a3xrh")
+icon_alignment = 1
