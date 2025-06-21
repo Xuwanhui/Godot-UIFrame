@@ -36,7 +36,7 @@ public abstract partial class UIBase : Control
 
     protected void HideSelf(bool forceDestroy = false)
     {
-        // UIFrame.Hide(this, forceDestroy);
+        UIFrame.Hide(this, forceDestroy);
     }
 
     /// <summary>
