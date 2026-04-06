@@ -14,7 +14,7 @@
 
 #### 生命周期
 
-![生命周期](\Script\UIFramework\Image\生命周期.png)
+![生命周期](/Script/UIFramework/Image/生命周期.png)
 
 与引擎生命周期一起的顺序为：_EnterTree() => OnCreate() => _Ready() => OnRefresh()  *~(建议统一使用UI框架的生命周期)*
 
