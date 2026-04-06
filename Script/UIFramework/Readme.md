@@ -4,9 +4,9 @@
 
 1.首先将UIFrame脚本添加到全局自动加载中。
 
-2.创建一个界面，根节点必须是Control，例如TestPanel，将该界面拖入Scene/UI/PanelLayer文件夹下（此目录目前在UIFrame脚本中写死的，具体可根据自己项目更改），同时创建一个脚本也名为TestPanel。
+2.创建一个界面，根节点必须是Control，例如TestPanel，将该界面拖入Scene/UI/PanelLayer文件夹下（此目录目前在UIFrame脚本中写死的，具体可根据自己项目更改），同时创建一个脚本也命名为TestPanel。
 
-3.TestPanel需要继承自UIBase或者UINode，同时用**UILayer子类标记**该脚本，下面有脚本的介绍。
+3.TestPanel需要继承自UIBase或者UINode，同时用**UILayer的子类标记**该脚本，下面有脚本的介绍。
 
 4.将TestPanel脚本挂载到TestPanel.tscn上，**切记必须同名！**
 
@@ -15,6 +15,8 @@
 #### 生命周期
 
 ![生命周期](Image\生命周期.png)
+
+与引擎生命周期一起的顺序为：_EnterTree() => OnCreate() => _Ready() => OnRefresh()  *~(建议统一使用UI框架的生命周期)*
 
 #### 脚本说明
 

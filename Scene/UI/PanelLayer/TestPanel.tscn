@@ -1,32 +1,48 @@
-[gd_scene load_steps=3 format=3 uid="uid://br1uvdupbbe2c"]
+[gd_scene format=3 uid="uid://br1uvdupbbe2c"]
 
-[ext_resource type="Texture2D" uid="uid://o7cjb1q4mu7q" path="res://icon.svg" id="1_a3xrh"]
 [ext_resource type="Script" uid="uid://c8pexjxfkju6e" path="res://Script/Runtime/TestPanel.cs" id="2_aegu7"]
 
-[node name="TestPanel" type="TextureRect" node_paths=PackedStringArray("_button")]
+[node name="TestPanel" type="TextureRect" unique_id=1519873585 node_paths=PackedStringArray("_button")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("1_a3xrh")
 script = ExtResource("2_aegu7")
 _button = NodePath("Button")
 
-[node name="Button" type="Button" parent="."]
+[node name="Panel" type="Panel" parent="." unique_id=1517098659]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="." unique_id=1200864951]
+layout_mode = 0
+offset_left = 454.0
+offset_top = 25.0
+offset_right = 753.0
+offset_bottom = 96.0
+theme_override_font_sizes/font_size = 46
+text = "测试界面"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="." unique_id=846443517]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -68.0
-offset_top = -68.0
-offset_right = 68.0
-offset_bottom = 68.0
+offset_left = 406.0
+offset_top = 234.0
+offset_right = 556.0
+offset_bottom = 306.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 46
 text = "关闭"
-icon = ExtResource("1_a3xrh")
 icon_alignment = 1
