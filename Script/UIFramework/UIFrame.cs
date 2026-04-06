@@ -5,10 +5,11 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
-using HappySquad.Script.Runtime;
+using GodotUIFrame.Script.Runtime;
 using ControlTask = System.Threading.Tasks.Task<Godot.Control>;
 using UIBaseTask = System.Threading.Tasks.Task<UIFramework.UIBase>;
 using Task = System.Threading.Tasks.Task;
+using TestPanel = GodotUIFrame.Script.Runtime.TestPanel;
 
 namespace UIFramework;
 
@@ -73,6 +74,8 @@ public partial class UIFrame : Node
             stuckPanel.SetProcess(false);
         };
         LoadNodeFunc += LoadNode;
+        
+        //临时测试打开界面
         await UIFrame.Show<TestPanel>(new TestPanelData()
         {
             TestString = "初始化"

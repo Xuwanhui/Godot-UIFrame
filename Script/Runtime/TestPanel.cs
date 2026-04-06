@@ -2,7 +2,7 @@
 using Godot;
 using UIFramework;
 
-namespace HappySquad.Script.Runtime;
+namespace GodotUIFrame.Script.Runtime;
 
 public class TestPanelData : UIData
 {
