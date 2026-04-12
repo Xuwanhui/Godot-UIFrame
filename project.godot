@@ -23,6 +23,15 @@ config/icon="res://icon.svg"
 
 UiFrame="*res://Script/UIFramework/UIFrame.cs"
 
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+
 [dotnet]
 
 project/assembly_name="Godot UIFrame"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/uiframe_editor_autobind/plugin.cfg")

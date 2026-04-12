@@ -1,4 +1,4 @@
-﻿namespace UIFramework;
+namespace UIFramework;
 
 public partial class UINode<T> : UIBase where T : UIData
 {

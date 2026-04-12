@@ -15,9 +15,18 @@ namespace UIFramework;
 
 public partial class UIFrame : Node
 {
+    private sealed class UIDataAccessor
+    {
+        public PropertyInfo Property { get; init; }
+        public Type DataType { get; init; }
+    }
+
+    private readonly record struct UILayerKey(string Name, int Order);
+
     private static readonly Dictionary<Type, Control> controls = new Dictionary<Type, Control>();
+    private static readonly Dictionary<Type, UIDataAccessor> dataAccessors = new Dictionary<Type, UIDataAccessor>();
     private static readonly Stack<(Type type, UIData data)> panelStack = new Stack<(Type, UIData)>();
-    private static readonly Dictionary<UILayer, CanvasLayer> uiLayers = new Dictionary<UILayer, CanvasLayer>();
+    private static readonly Dictionary<UILayerKey, CanvasLayer> uiLayers = new Dictionary<UILayerKey, CanvasLayer>();
     private static CanvasLayer uiLayer;
 
     /// <summary>
@@ -73,6 +82,7 @@ public partial class UIFrame : Node
             stuckPanel.Visible = false;
             stuckPanel.SetProcess(false);
         };
+        LoadNodeFunc -= LoadNode;
         LoadNodeFunc += LoadNode;
         
         //临时测试打开界面
@@ -315,8 +325,10 @@ public partial class UIFrame : Node
     /// </summary>
     public static CanvasLayer GetLayerCanvasLayer(Type type)
     {
-        var layer = GetLayer(type);
-        uiLayers.TryGetValue(layer, out var result);
+        var key = GetLayerKey(type);
+        if (key == null) return null;
+
+        uiLayers.TryGetValue(key.Value, out var result);
         return result;
     }
     #endregion
@@ -343,18 +355,18 @@ public partial class UIFrame : Node
     }
 
     /// <summary>
-    /// 刷新UI。data为null时将用之前的data刷新
+    /// 刷新UI。
     /// </summary>
     public static Task Refresh(UIBase ui, UIData data = null)
     {
         if (!ui.Visible) return Task.CompletedTask;
 
         var uiBases = ui.BreadthTraversal().ToArray();
-        if (data != null) TrySetData(ui, data);
+        var effectiveData = SetData(ui, data);
         if (panelStack.Count > 0 && GetLayer(ui) is PanelLayer)
         {
-            var (type, _) = panelStack.Pop();
-            panelStack.Push((type, data));
+            var (type, cachedData) = panelStack.Pop();
+            panelStack.Push((type, effectiveData ?? cachedData));
         }
         return DoRefresh(uiBases);
     }
@@ -474,7 +486,7 @@ public partial class UIFrame : Node
 
         if (controls.TryGetValue(type, out var control))
         {
-            TrySetData(control as UIBase, data);
+            SetData(control as UIBase, data);
             return control;
         }
         Control refControl = null;
@@ -501,7 +513,7 @@ public partial class UIFrame : Node
 
         if (controls.TryGetValue(type, out var control))
         {
-            control.QueueFree();
+            UIFrame.QueueFree(control);
             OnNodeRelease?.Invoke(type);
             controls.Remove(type);
         }
@@ -633,7 +645,7 @@ public partial class UIFrame : Node
             .BreadthTraversal()
             .OfType<UIBase>()
             .ToArray();
-        TrySetData(uiBase, data);
+        SetData(uiBase, data);
         foreach (var item in uiBases)
         {
             item.Children.Clear();
@@ -675,7 +687,7 @@ public partial class UIFrame : Node
             {
                 if (ui.Visible) return ui;
 
-                TrySetData(ui, data);
+                SetData(ui, data);
                 var timeout = new CancellationTokenSource();
                 bool isStuck = false;
                 Task.Delay(TimeSpan.FromSeconds(StuckTime), timeout.Token).GetAwaiter().OnCompleted(() =>
@@ -685,8 +697,11 @@ public partial class UIFrame : Node
                     OnStuckStart?.Invoke();
                     isStuck = true;
                 });
-                var parentUIBases = ui.Parent.BreadthTraversal().ToArray();
-                DoUnbind(parentUIBases);
+                var parentUIBases = ui.Parent != null ? ui.Parent.BreadthTraversal().ToArray() : Array.Empty<UIBase>();
+                if (ui.Parent != null)
+                {
+                    DoUnbind(parentUIBases);
+                }
                 var uiBases = ui.BreadthTraversal().ToArray();
                 await DoRefresh(uiBases);
                 ui.Visible = true;
@@ -705,6 +720,7 @@ public partial class UIFrame : Node
 
                 return ui;
             }
+
             return await Show(ui.GetType(), data);
         }
         catch (Exception ex)
@@ -746,9 +762,10 @@ public partial class UIFrame : Node
                 var control = await LoadControl(type, data);
                 UIBase uiBase = control as UIBase;
                 var uiBases = uiBase.BreadthTraversal().ToArray();
-                if (data != null && CurrentPanel != null)
+                var effectiveData = GetData(uiBase);
+                if (effectiveData != null && CurrentPanel != null)
                 {
-                    data.Sender = CurrentPanel.GetType();
+                    effectiveData.Sender = CurrentPanel.GetType();
                 }
                 await DoRefresh(uiBases);
                 if (CurrentPanel != null)
@@ -758,7 +775,7 @@ public partial class UIFrame : Node
                     if (CurrentPanel.AutoDestroy) ReleaseControl(CurrentPanel.GetType());
                 }
                 control.Visible = true;
-                panelStack.Push((type, data));
+                panelStack.Push((type, effectiveData));
                 DoBind(uiBases);
                 DoShow(uiBases);
                 result = uiBase;
@@ -769,9 +786,10 @@ public partial class UIFrame : Node
                 UIBase uiBase = control as UIBase;
                 var uiBases = uiBase.BreadthTraversal().ToArray();
 
-                if (data != null && CurrentPanel != null)
+                var effectiveData = GetData(uiBase);
+                if (effectiveData != null && CurrentPanel != null)
                 {
-                    data.Sender = CurrentPanel.GetType();
+                    effectiveData.Sender = CurrentPanel.GetType();
                 }
                 await DoRefresh(uiBases);
                 control.Visible = true;
@@ -849,13 +867,65 @@ public partial class UIFrame : Node
         }
     }
 
-    private static bool TrySetData(UIBase ui, UIData data)
+    private static UIData SetData(UIBase ui, UIData data)
     {
-        if (ui == null) return false;
-        var property = ui.GetType().GetProperty("Data", BindingFlags.Public | BindingFlags.Instance);
-        if (property == null) return false;
-        property.SetValue(ui, data);
-        return true;
+        if (ui == null) return null;
+
+        var accessor = GetDataAccessor(ui.GetType());
+        if (accessor == null)
+        {
+            if (data != null)
+            {
+                throw new InvalidOperationException($"{ui.GetType().Name} does not inherit UINode<T>, but received {data.GetType().Name}.");
+            }
+            return null;
+        }
+
+        if (data == null)
+        {
+            return accessor.Property.GetValue(ui) as UIData;
+        }
+
+        if (!accessor.DataType.IsAssignableFrom(data.GetType()))
+        {
+            throw new InvalidOperationException($"{ui.GetType().Name} expects {accessor.DataType.Name}, but received {data.GetType().Name}.");
+        }
+
+        accessor.Property.SetValue(ui, data);
+        return data;
+    }
+
+    private static UIData GetData(UIBase ui)
+    {
+        if (ui == null) return null;
+
+        var accessor = GetDataAccessor(ui.GetType());
+        return accessor == null ? null : accessor.Property.GetValue(ui) as UIData;
+    }
+
+    private static UIDataAccessor GetDataAccessor(Type type)
+    {
+        if (type == null) return null;
+        if (dataAccessors.TryGetValue(type, out var accessor)) return accessor;
+
+        var property = type.GetProperty("Data", BindingFlags.Public | BindingFlags.Instance);
+        if (property == null ||
+            property.GetIndexParameters().Length > 0 ||
+            property.GetSetMethod() == null ||
+            property.GetGetMethod() == null ||
+            !typeof(UIData).IsAssignableFrom(property.PropertyType))
+        {
+            dataAccessors[type] = null;
+            return null;
+        }
+
+        accessor = new UIDataAccessor
+        {
+            Property = property,
+            DataType = property.PropertyType
+        };
+        dataAccessors[type] = accessor;
+        return accessor;
     }
 
     private static UIBase GetParent(UIBase ui)
@@ -877,19 +947,30 @@ public partial class UIFrame : Node
     private static CanvasLayer GetOrCreateCanvasLayer(Type type)
     {
         UILayer layer = GetLayer(type);
-        if (!uiLayers.TryGetValue(layer, out var canvasLayer))
+        var key = GetLayerKey(type);
+        if (layer == null || key == null) return null;
+
+        if (!uiLayers.TryGetValue(key.Value, out var canvasLayer))
         {
             canvasLayer = new CanvasLayer();
             canvasLayer.Name = layer.GetName();
             uiLayer.AddChild(canvasLayer);
-            uiLayers[layer] = canvasLayer;
+            uiLayers[key.Value] = canvasLayer;
             int index = 0;
-            foreach (var item in uiLayers.OrderBy(i => i.Key.GetOrder()))
+            foreach (var item in uiLayers.OrderBy(i => i.Key.Order))
             {
-                uiLayer.MoveChild(item.Value,++index);
+                uiLayer.MoveChild(item.Value, ++index);
             }
         }
         return canvasLayer;
+    }
+
+    private static UILayerKey? GetLayerKey(Type type)
+    {
+        var layer = GetLayer(type);
+        if (layer == null) return null;
+
+        return new UILayerKey(layer.GetName(), layer.GetOrder());
     }
     
 }

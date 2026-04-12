@@ -2,14 +2,14 @@
 
 [ext_resource type="Script" uid="uid://c8pexjxfkju6e" path="res://Script/Runtime/TestPanel.cs" id="2_aegu7"]
 
-[node name="TestPanel" type="TextureRect" unique_id=1519873585 node_paths=PackedStringArray("_button")]
+[node name="TestPanel" type="TextureRect" unique_id=1519873585 node_paths=PackedStringArray("testButton")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("2_aegu7")
-_button = NodePath("Button")
+testButton = NodePath("-TestButton")
 
 [node name="Panel" type="Panel" parent="." unique_id=1517098659]
 layout_mode = 1
@@ -30,7 +30,7 @@ text = "测试界面"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Button" type="Button" parent="." unique_id=846443517]
+[node name="-TestButton" type="Button" parent="." unique_id=846443517]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5

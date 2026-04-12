@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Godot;
 using UIFramework;
 
@@ -12,7 +12,12 @@ public class TestPanelData : UIData
 [PanelLayer]
 public partial class TestPanel : UINode<TestPanelData>
 {
-    [Export] private BaseButton _button;
+    [Export] private Button testButton;
+
+    private void HandleClosePressed()
+    {
+        HideSelf();
+    }
     
     public override void _EnterTree()
     {
@@ -45,15 +50,13 @@ public partial class TestPanel : UINode<TestPanelData>
 
     protected override void OnBind()
     {
-        _button.Pressed += () =>
-        {
-            UIFrame.Hide(this);
-        };
+        testButton.Pressed += HandleClosePressed;
         GD.Print("TestPanel bind");
     }
 
     protected override void OnUnbind()
     {
+        testButton.Pressed -= HandleClosePressed;
         GD.Print("TestPanel unbind");
     }
 

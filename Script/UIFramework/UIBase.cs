@@ -4,6 +4,7 @@ using Godot;
 
 namespace UIFramework;
 
+[GlobalClass]
 public abstract partial class UIBase : Control
 {
     /// <summary>
