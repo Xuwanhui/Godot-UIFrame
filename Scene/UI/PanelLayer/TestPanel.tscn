@@ -1,15 +1,15 @@
 [gd_scene format=3 uid="uid://br1uvdupbbe2c"]
 
-[ext_resource type="Script" uid="uid://c8pexjxfkju6e" path="res://Script/Runtime/TestPanel.cs" id="2_aegu7"]
+[ext_resource type="Script" uid="uid://c8pexjxfkju6e" path="res://Script/Runtime/TestPanel.gd" id="2_aegu7"]
 
-[node name="TestPanel" type="TextureRect" unique_id=1519873585 node_paths=PackedStringArray("testButton")]
+[node name="TestPanel" type="TextureRect" unique_id=1519873585 node_paths=PackedStringArray("test_button")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("2_aegu7")
-testButton = NodePath("-TestButton")
+test_button = NodePath("-TestButton")
 
 [node name="Panel" type="Panel" parent="." unique_id=1517098659]
 layout_mode = 1

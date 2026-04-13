@@ -1,4 +1,4 @@
-## Godot UIFrame C#版
+## Godot UIFrame GDScript版
 
 #### 使用流程（项目中有对应示例）
 
@@ -10,7 +10,7 @@
 
 4.将TestPanel脚本挂载到TestPanel.tscn上，**切记必须同名！**
 
-5.调用UIFrame.Show<TestPanel>();即可显示该界面。
+5.调用UIFrame.show_by_name(&"TestPanel")即可显示该界面。
 
 #### 生命周期
 
@@ -32,17 +32,17 @@
 
 ```c#
 // 显示UI
-UIFrame.Show<TestPanel>();
-UIFrame.Show<TestPanel>(new TestPanelData());
+UIFrame.show_by_name(&"TestPanel")
+UIFrame.show_by_name(&"TestPanel", TestPanelData.new())
 // 显示子UI
 UIFrame.Show(UIBase uibase);
 // 隐藏UI
-UIFrame.Hide<TestPanel>();
+UIFrame.hide_type(&"TestPanel")
 // 隐藏子UI
 UIFrame.Hide(UIbase uibase);
 // 刷新UI
-UIFrame.Refresh<TestPanel>();
-UIFrame.Refresh<TestPanel>(new TestPanelData());
+UIFrame.refresh_type(&"TestPanel")
+UIFrame.refresh_type(&"TestPanel", TestPanelData.new())
 // 刷新子UI
 UIFrame.Refresh(UIBase uibase);
 ```
