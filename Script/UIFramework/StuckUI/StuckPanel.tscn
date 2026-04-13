@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bjj5342xwxo2i"]
 
-[ext_resource type="Script" uid="uid://dvmnkyp8nqpbo" path="res://Script/UIFramework/StuckUI/StuckPanel.cs" id="1_h0tip"]
+[ext_resource type="Script" uid="uid://dvmnkyp8nqpbo" path="res://Script/UIFramework/StuckUI/StuckPanel.gd" id="1_h0tip"]
 [ext_resource type="Texture2D" uid="uid://d2yboui3ciq00" path="res://Script/UIFramework/Image/Loading.png" id="2_h0tip"]
 
 [node name="StuckPanel" type="Control" unique_id=1874064036 node_paths=PackedStringArray("icon")]
